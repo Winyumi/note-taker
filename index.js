@@ -14,7 +14,7 @@ if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir);
 }
 
-// API Calls
+// API Routes
 
 const db = './db/db.json';
 
@@ -53,7 +53,7 @@ app.delete("/api/notes/:id", function(req, res) {
 
 
 
-// Routes
+// HTML Routes
 
 app.get("/notes", function(req, res) {
     res.sendFile(path.join(__dirname, "./public/notes.html"));
