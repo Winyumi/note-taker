@@ -8,6 +8,11 @@ const port = process.env.PORT || 8080;
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+// Create db directory if not exists
+const dir = './db';
+if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir);
+}
 
 // API Calls
 
