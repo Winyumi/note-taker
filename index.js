@@ -8,15 +8,16 @@ const port = process.env.PORT || 8080;
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Create db directory if not exists
+
+// Create db if not exists
 const dir = './db';
-if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir);
-}
+const db = './db/db.json';
+if (!fs.existsSync(dir)) fs.mkdirSync(dir);
+if (!fs.existsSync(db)) fs.writeFileSync(db, '[]', { encoding: 'utf-8' });
+
 
 // API Routes
 
-const db = './db/db.json';
 
 app.get("/api/notes", function(req, res) {
     fs.readFile(db, 'utf-8', function(err, data) {
