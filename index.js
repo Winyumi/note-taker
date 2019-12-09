@@ -9,53 +9,71 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 
+
+// Note Class
+class Note {
+    constructor(title, text, id) {
+        Note.lastId++;
+        this.id = id ? id : Note.lastId;
+        this.title = title;
+        this.text = text;
+    }
+}
+
+
+
 // Create db if not exists
 const dir = './db';
 const db = './db/db.json';
 if (!fs.existsSync(dir)) fs.mkdirSync(dir);
-if (!fs.existsSync(db)) fs.writeFileSync(db, '[]', { encoding: 'utf-8' });
+if (!fs.existsSync(db)) fs.writeFileSync(db, '[]', 'utf-8');
+
+
+
+// Start db
+let notes = [];
+console.log(`Loading notes...`);
+loadNotes();
+console.log(`Notes loaded.`);
+console.log(`Last note ID: ${Note.lastId}`);
+
 
 
 // API Routes
-
-
 app.get("/api/notes", function(req, res) {
-    fs.readFile(db, 'utf-8', function(err, data) {
-        let notes = JSON.parse(data);
-        res.json(notes);
-    });
+    loadNotes();
+    res.json(notes);
 });
 app.post("/api/notes", function(req, res) {
-    fs.readFile(db, 'utf-8', function(err, data) {
-        let notes = JSON.parse(data);
-        let newId = req.body.id;
-        notes.push(req.body);
-        fs.writeFile(db, JSON.stringify(notes, null, 4), 'utf-8', function(err) {
-            if (err) throw err;
-            res.json(req.body);
-            console.log(`Note ${newId} added.`);
-        });
-    });
+    loadNotes();
+    notes.push(new Note(req.body.title, req.body.text));
+    saveNotes();
+    res.json(notes[notes.length - 1]);
+    console.log(`Note ${notes[notes.length - 1].id} added.`);
+    console.log(notes[notes.length - 1]);
 });
 app.delete("/api/notes/:id", function(req, res) {
-    fs.readFile(db, 'utf-8', function(err, data) {
-        let notes = JSON.parse(data);
-        let delId = req.params.id;
-        let delIndex = notes.findIndex(e => e.id == delId);
-        // let delNote = notes[delIndex];
+    loadNotes();
+    let delId = req.params.id;
+    let delIndex = notes.findIndex(note => note.id == delId);
+    let delNote;
+    if (delIndex === -1) {
+        res.json({error: `note not found`});
+        console.log(`Note ${delId} not found.`);
+    } else {
+        delNote = notes[delIndex];
+        delNote.deleted = true;
         notes.splice(delIndex, 1);
-        fs.writeFile(db, JSON.stringify(notes, null, 4), 'utf-8', function(err) {
-            if (err) throw err;
-            res.json(`Note ${delId} deleted.`);
-            console.log(`Note ${delId} deleted.`);
-        });
-    });
+        saveNotes();
+        res.json(delNote);
+        console.log(`Note ${delId} deleted.`);
+        console.log(delNote);
+    }
 });
 
 
 
 // HTML Routes
-
 app.get("/notes", function(req, res) {
     res.sendFile(path.join(__dirname, "./public/notes.html"));
 });
@@ -66,7 +84,21 @@ app.get("*", function(req, res) {
 
 
 // Listen on port
-
 app.listen(port, function() {
     console.log(`App listening on port ${port}.`);
 });
+
+
+
+// Functions
+function loadNotes() {
+    let arr = JSON.parse(fs.readFileSync(db, 'utf-8'));
+    notes = [];
+    for (let note of arr) {
+        notes.push(new Note(note.title, note.text, note.id));
+    }
+    Note.lastId = notes.length > 0 ? notes[notes.length - 1].id : 0;
+}
+function saveNotes() {
+    fs.writeFileSync(db, JSON.stringify(notes, null, 4), 'utf-8');
+}
