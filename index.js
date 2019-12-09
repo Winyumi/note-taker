@@ -69,6 +69,7 @@ app.delete("/api/notes/:id", function(req, res) {
         res.json(delNote);
         console.log(`Note ${delId} deleted.`);
         console.log(delNote);
+        if (notes.length === 0) console.log(`All notes have been deleted.`);
     }
 });
 
