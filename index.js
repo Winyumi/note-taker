@@ -59,7 +59,7 @@ app.delete("/api/notes/:id", function(req, res) {
     let delIndex = notes.findIndex(note => note.id == delId);
     let delNote;
     if (delIndex === -1) {
-        res.json({error: `note not found`});
+        res.json({ error: `note not found` });
         console.log(`Note ${delId} not found.`);
     } else {
         delNote = notes[delIndex];
