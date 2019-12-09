@@ -34,7 +34,7 @@ var saveNotes = function() {
 
 
 
-// Create db if not exists
+// Initialize db
 const dir = './db';
 const db = './db/db.json';
 if (!fs.existsSync(dir)) fs.mkdirSync(dir);
@@ -51,7 +51,7 @@ console.log(`Last note ID: ${Note.lastId}`);
 
 
 
-// API Routes
+// API routes
 app.get("/api/notes", function(req, res) {
     loadNotes();
     res.json(notes);
@@ -86,7 +86,7 @@ app.delete("/api/notes/:id", function(req, res) {
 
 
 
-// HTML Routes
+// HTML routes
 app.get("/notes", function(req, res) {
     res.sendFile(path.join(__dirname, "./public/notes.html"));
 });
