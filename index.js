@@ -11,7 +11,7 @@ app.use('/', express.static('public'));
 
 
 
-// Note Class
+// Classes and functions
 class Note {
     constructor(title, text, id) {
         Note.lastId++;
@@ -19,6 +19,17 @@ class Note {
         this.title = title;
         this.text = text;
     }
+}
+var loadNotes = function() {
+    let arr = JSON.parse(fs.readFileSync(db, 'utf-8'));
+    notes = [];
+    for (let note of arr) {
+        notes.push(new Note(note.title, note.text, note.id));
+    }
+    Note.lastId = notes.length > 0 ? notes[notes.length - 1].id : 0;
+}
+var saveNotes = function() {
+    fs.writeFileSync(db, JSON.stringify(notes, null, 4), 'utf-8');
 }
 
 
@@ -91,18 +102,3 @@ app.get("*", function(req, res) {
 app.listen(port, function() {
     console.log(`App listening on port ${port}.`);
 });
-
-
-
-// Functions
-function loadNotes() {
-    let arr = JSON.parse(fs.readFileSync(db, 'utf-8'));
-    notes = [];
-    for (let note of arr) {
-        notes.push(new Note(note.title, note.text, note.id));
-    }
-    Note.lastId = notes.length > 0 ? notes[notes.length - 1].id : 0;
-}
-function saveNotes() {
-    fs.writeFileSync(db, JSON.stringify(notes, null, 4), 'utf-8');
-}
